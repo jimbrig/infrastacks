@@ -1,0 +1,77 @@
+services:
+
+  postgres:
+    # image: postgres:latest
+    build: .
+    container_name: ${DB_CONTAINER:-postgres-db}
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
+      - POSTGRES_DB=${DB_DATABASE:-postgres}
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - postgres
+
+  pgweb:
+    image: sosedoff/pgweb
+    # build: ./docker/Dockerfile.pgweb
+    container_name: pgweb
+    ports:
+      - 8082:8081
+    networks:
+      - postgres
+    environment:
+      - PGWEB_SESSIONS=1
+      - PGWEB_LOCK_SESSION=TRUE
+      - PGWEB_DATABASE_URL=postgres://${DB_USERNAME:-postgres}:${DB_PASSWORD:-postgres}@host.docker.internal:5432/${DB_DATABASE:-postgres}?sslmode=disable
+    depends_on:
+      - postgres
+
+  pgadmin:
+    image: dpage/pgadmin4
+    # build: ./docker/Dockerfile.pgadmin
+    container_name: pgadmin
+    ports:
+      - 8083:80
+    networks:
+      - postgres
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL:-jimmy.briggs@jimbrig.com}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD:-p}
+    depends_on:
+      - postgres
+
+  schemaspy:
+    image: schemaspy/schemaspy
+    # build: ./docker/Dockerfile.schemaspy
+    container_name: schemaspy
+    volumes:
+      # - ./schemaspy/output:/output
+      - ./config:/config
+    ports:
+      - 5000:5000
+    command:
+      [
+        "-configFile",
+        "/config/schemaspy.properties",
+        "-imageformat",
+        "svg"
+      ]
+    depends_on:
+      - postgres
+
+volumes:
+  db:
+    name: ${DB_CONTAINER:-postgres-db}
+  # ss:
+  #   name: schemaspydata
+  # config:
+  #   name: schemaspyconfig
+
+networks:
+  postgres:
+    name: ${DB_CONTAINER:-postgres}

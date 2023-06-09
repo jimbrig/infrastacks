@@ -1,0 +1,8 @@
+FROM dpage/pgadmin4:latest
+
+ENV PGADMIN_DEFAULT_EMAIL=jimmy.briggs@jimbrig.com
+ENV PGADMIN_DEFAULT_PASSWORD=p
+
+EXPOSE 8083:80
+
+HEALTHCHECK CMD ["docker-healthcheck.sh"]

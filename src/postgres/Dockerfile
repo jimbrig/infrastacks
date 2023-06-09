@@ -1,0 +1,20 @@
+ARG POSTGRES_TAG=latest
+
+FROM postgres:${POSTGRES_TAG}
+
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+ENV POSTGRES_DB=postgres
+
+COPY ./scripts/*.sql /docker-entrypoint-initdb.d/
+# COPY ./data/*.csv /docker-entrypoint-initdb.d/
+
+COPY ./scripts/*.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/*.sh
+
+EXPOSE 5432
+
+VOLUME db:/var/lib/postgresql/data
+
+HEALTHCHECK CMD ["docker-healthcheck.sh"]
+

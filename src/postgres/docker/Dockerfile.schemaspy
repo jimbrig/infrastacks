@@ -1,0 +1,9 @@
+FROM schemaspy/schemaspy:latest
+
+VOLUME ./../schemaspy:/output
+VOLUME ./../config:/config
+
+EXPOSE 5000:5000
+
+CMD [ "-configFile", "/config/schemaspy.properties", "-imageformat", "svg" ]
+

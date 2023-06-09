@@ -1,0 +1,9 @@
+FROM sosedoff/pgweb:latest
+
+ENV PGWEB_SESSIONS=1
+ENV PGWEB_LOCK_SESSION=TRUE
+ENV PGWEB_DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+
+EXPOSE 8082:8081
+
+HEALTHCHECK CMD ["docker-healthcheck.sh"]
